@@ -3,20 +3,11 @@
     <div class="sortList clearfix">
       <div class="center">
         <!--banner轮播-->
-        <div class="swiper-container" id="mySwiper">
+        <div class="swiper-container" ref="mySwiper">
           <div class="swiper-wrapper">
-            <div class="swiper-slide">
-              <img src="./images/banner1.jpg" />
+            <div class="swiper-slide" v-for="(carousel, index) in bannerList" :key="carousel.id">
+              <img :src="carousel.imgUrl" />
             </div>
-            <!-- <div class="swiper-slide">
-              <img src="./images/banner2.jpg" />
-            </div>
-            <div class="swiper-slide">
-              <img src="./images/banner3.jpg" />
-            </div>
-            <div class="swiper-slide">
-              <img src="./images/banner4.jpg" />
-            </div> -->
           </div>
           <!-- 如果需要分页器 -->
           <div class="swiper-pagination"></div>
@@ -114,8 +105,56 @@
   </div>
 </template>
 <script>
+import { mapState } from 'vuex'
+
+// 引包
+import Swiper from 'swiper'
+
 export default {
   name: '',
+  mounted() {
+    // mounted：组件挂载完毕，正常说组件结构（DOM）已近全有了
+    // 为什么swiper实例在mounted当中直接书写不可以：因为结构还没有完整
+
+    // 派发action：通过Vuex发起Ajax请求，将数据仓储在仓库当中
+    this.$store.dispatch('getBannerList')
+  },
+  computed: {
+    ...mapState({
+      bannerList: state => state.home.bannerList,
+    }),
+  },
+
+  watch: {
+    // 监听bannerList数据的变化：因为这条数据发生过变化 --- 由空数组变为数组里面有四个元素
+    bannerList: {
+      handler(newValue, oldValue) {
+        /**
+         * 现在通过watch监听bannerList属性的属性值的变化
+         * 如果执行handler方法，代表组件实例身上这个属性已经有了【数组：四个元素】
+         * 当前这个函数执行：只能保证bannerList数据已经有了，但是你没有办法保证v-for已经执行结束了
+         * v-for执行完毕，才有结构【你现在在watch当中没有办法保证的】
+         *
+         * nextTick:在下次 DOM 更新循环结束之后执行延迟回调。在修改数据之后立即使用这个方法，获取更新后的 DOM
+         */
+
+        this.$nextTick(() => {
+          // 当你执行这个回调的时候：保证服务器数据回来了，v-for执行完毕了【一定轮播图的结构一定有了】
+          var mySwiper = new Swiper(this.$refs.mySwiper, {
+            loop: true,
+            pagination: {
+              el: '.swiper-pagination',
+              clickable: true,
+            },
+            navigation: {
+              nextEl: '.swiper-button-next',
+              prevEl: '.swiper-button-prev',
+            },
+          })
+        })
+      },
+    },
+  },
 }
 </script>
 <style lang="less" scoped>

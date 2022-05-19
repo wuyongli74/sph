@@ -6,7 +6,8 @@
     <Recommend />
     <Rank />
     <Like />
-    <Floor />
+    <!-- Floor这个组件：自己在组件内部是没有发送请求的，数据是父组给的 -->
+    <Floor v-for="(floor, index) in floorList" :key="floor.id" :list="floor" />
     <Brand />
   </div>
 </template>

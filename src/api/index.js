@@ -3,8 +3,6 @@ import requests from './request'
 import mockRequests from './mockAjax'
 
 // 三级联动接口
-// /api/product/getBaseCategoryList get 无参数
-
 export const reqCategoryList = () => {
   // 发请求：axios发请求返回结果Promise对象
   return requests({
@@ -26,5 +24,14 @@ export const reqFloorList = () => {
   return mockRequests({
     url: '/floor',
     method: 'get',
+  })
+}
+
+// 搜索接口
+export const reqGetSearchInfo = params => {
+  return requests({
+    url: '/list',
+    method: 'post',
+    data: params,
   })
 }

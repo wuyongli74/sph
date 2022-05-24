@@ -91,6 +91,12 @@ export default {
       }
     },
   },
+  // 挂载成功
+  mounted() {
+    this.$bus.$on('clear', () => {
+      this.keyword = ''
+    })
+  },
 }
 </script>
 

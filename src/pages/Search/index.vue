@@ -70,7 +70,9 @@
               <li class="yui3-u-1-5" v-for="(good, index) in goodsList" :key="good.id">
                 <div class="list-wrap">
                   <div class="p-img">
-                    <a href="item.html" target="_blank"><img :src="good.defaultImg" /></a>
+                    <Router-link :to="`/detail/${good.id}`">
+                      <img :src="good.defaultImg" />
+                    </Router-link>
                   </div>
                   <div class="price">
                     <strong>
@@ -104,35 +106,14 @@
               </li>
             </ul>
           </div>
-          <div class="fr page">
-            <div class="sui-pagination clearfix">
-              <ul>
-                <li class="prev disabled">
-                  <a href="#">«上一页</a>
-                </li>
-                <li class="active">
-                  <a href="#">1</a>
-                </li>
-                <li>
-                  <a href="#">2</a>
-                </li>
-                <li>
-                  <a href="#">3</a>
-                </li>
-                <li>
-                  <a href="#">4</a>
-                </li>
-                <li>
-                  <a href="#">5</a>
-                </li>
-                <li class="dotted"><span>...</span></li>
-                <li class="next">
-                  <a href="#">下一页»</a>
-                </li>
-              </ul>
-              <div><span>共10页&nbsp;</span></div>
-            </div>
-          </div>
+          <!-- 分页器 -->
+          <Pagination
+            :pageNo="searchParams.pageNo"
+            :pageSize="searchParams.pageSize"
+            :total="total"
+            :continues="5"
+            @getPageNo="getPageNo"
+          />
         </div>
       </div>
     </div>
@@ -140,7 +121,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 import SearchSelector from './SearchSelector/SearchSelector'
 export default {
@@ -167,7 +148,7 @@ export default {
         // 分页器用的：代表的是当前是第几页
         pageNo: 1,
         // 代表的是每一个展示数据个数
-        pageSize: 3,
+        pageSize: 5,
         // 平台售卖属性操作的参数
         props: [],
         // 品牌
@@ -209,6 +190,10 @@ export default {
     isDesc() {
       return this.searchParams.order.indexOf('desc') != -1
     },
+    // 获取search模块展示产品一共多少数据
+    ...mapState({
+      total: state => state.search.searchList.total,
+    }),
   },
   // 函数调用
   methods: {
@@ -276,8 +261,8 @@ export default {
       // flag形参：它是一个标记，代表用户点击的是综合（1）和价格（2）【用户点击的时候传递进来】
       let originOrder = this.searchParams.order
       // 获取到最开始的状态
-      let originFlag = this.searchParams.order.split(':')[0]
-      let originSort = this.searchParams.order.split(':')[1]
+      let originFlag = originOrder.split(':')[0]
+      let originSort = originOrder.split(':')[1]
       // 准备一个新的order属性值
       let newOrder = ''
       // 点击的是综合
@@ -293,6 +278,13 @@ export default {
       // 再次发起请求
       this.getDate()
     },
+    // 自定义事件的回调--获取当前第几页
+    getPageNo(pageNo) {
+      // 整理带给服务器参数
+      this.searchParams.pageNo = pageNo
+      // 再次发请求
+      this.getDate()
+    },
   },
   // 数据监听：监听组件实例身上的属性值变化
   watch: {
@@ -300,7 +292,7 @@ export default {
     $route(newValue, oldValue) {
       // 再次发请求之前整理带给服务器参数
       Object.assign(this.searchParams, this.$route.query, this.$route.params)
-      // 再次发起ajax请求
+      // 再次发起请求
       this.getDate()
       // 每一次请求完毕，应该把相应的1、2、3级分类的id置空的，让他接收下一次的相应1、2、3级id
       this.searchParams.category1Id = undefined

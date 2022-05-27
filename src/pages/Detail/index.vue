@@ -16,9 +16,9 @@
         <!-- 左侧放大镜区域 -->
         <div class="previewWrap">
           <!--放大镜效果-->
-          <Zoom />
+          <Zoom :skuImageList="skuImageList" />
           <!-- 小图列表 -->
-          <ImageList />
+          <ImageList :skuImageList="skuImageList" />
         </div>
         <!-- 右侧选择区域布局 -->
         <div class="InfoWrap">
@@ -65,16 +65,26 @@
           <div class="choose">
             <div class="chooseArea">
               <div class="choosed"></div>
-              <dl>
-                <dt class="title">{{}}</dt>
-                <dd>{{}}</dd>
+              <dl v-for="(spuSaleAtt, index) in spuSaleAttrList" :key="spuSaleAtt.id">
+                <dt class="title">{{ spuSaleAtt.saleAttrName }}</dt>
+                <dd
+                  changepirce="0"
+                  :class="{ active: spuSaleAttrValue.isChecked == 1 }"
+                  v-for="(spuSaleAttrValue, index) in spuSaleAtt.spuSaleAttrValueList"
+                  :key="spuSaleAttrValue.id"
+                  @click="changeActive(spuSaleAttrValue, spuSaleAtt.spuSaleAttrValueList)"
+                >
+                  {{ spuSaleAttrValue.saleAttrValueName }}
+                </dd>
               </dl>
             </div>
             <div class="cartWrap">
               <div class="controls">
-                <input autocomplete="off" class="itxt" />
-                <a href="javascript:" class="plus">+</a>
-                <a href="javascript:" class="mins">-</a>
+                <input autocomplete="off" class="itxt" v-model="skuNum" @click="changeSkuNum" />
+                <a href="javascript:" class="plus" @click="skuNum++">+</a>
+                <a href="javascript:" class="mins" @click="skuNum > 1 ? skuNum-- : (skuNum = 1)">
+                  -
+                </a>
               </div>
               <div class="add">
                 <!-- 以前咱们的路由跳转：从A路由跳转到B路由，这里在加入购物车，进行路由跳转之前，发请求
@@ -326,7 +336,8 @@ export default {
   name: 'Detail',
   data() {
     return {
-      goodInfo: {},
+      // 购买产品数量
+      skuNum: 1,
     }
   },
   components: {
@@ -339,6 +350,34 @@ export default {
   },
   computed: {
     ...mapGetters(['categoryView', 'skuInfo', 'spuSaleAttrList', 'valuesSkuJson']),
+    // 给子组件的数据
+    skuImageList() {
+      // 如果服务器数据没有回来，skuInfo这个对象是空对象
+      return this.skuInfo.skuImageList || []
+    },
+  },
+  methods: {
+    // 规格点击事件
+    changeActive(saleAttrValue, arr) {
+      // 遍历全部售卖属性值isChecked为零没有高亮了
+      arr.forEach(item => {
+        item.isChecked = '0'
+      })
+      // 点击的那个售卖属性值
+      saleAttrValue.isChecked = 1
+    },
+    // 表单元素修改产品个数
+    changeSkuNum(event) {
+      // 用户输入进来的文本 * 1
+      let value = event.target.value * 1
+      // 如果用户输入进来的非法，出现NaN或者小于1
+      if (isNaN(value) || value < 1) {
+        this.skuNum = 1
+      } else {
+        // 正常大于1【大于1整数不能出现小数】
+        this.skuNum = parseInt(value)
+      }
+    },
   },
 }
 </script>

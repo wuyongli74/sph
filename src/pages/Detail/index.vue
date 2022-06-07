@@ -90,7 +90,7 @@
                 <!-- 以前咱们的路由跳转：从A路由跳转到B路由，这里在加入购物车，进行路由跳转之前，发请求
                     把你购买的产品的信息通过请求的形式通知服务器，服务器进行相应的存储
                   -->
-                <a>加入购物车</a>
+                <a @click="addShopCar">加入购物车</a>
               </div>
             </div>
           </div>
@@ -349,7 +349,7 @@ export default {
     this.$store.dispatch('getGoodInfo', this.$route.params.skuId)
   },
   computed: {
-    ...mapGetters(['categoryView', 'skuInfo', 'spuSaleAttrList', 'valuesSkuJson']),
+    ...mapGetters(['categoryView', 'skuInfo', 'spuSaleAttrList']),
     // 给子组件的数据
     skuImageList() {
       // 如果服务器数据没有回来，skuInfo这个对象是空对象
@@ -376,6 +376,32 @@ export default {
       } else {
         // 正常大于1【大于1整数不能出现小数】
         this.skuNum = parseInt(value)
+      }
+    },
+    // 加入购物车的回调函数
+    async addShopCar() {
+      // 1.在点击加入购物车这个按钮的时候，做的第一件事情，将参数带给服务器(发请求)，通知服务器加入购物车的产品是谁
+      //  this.$store.dispatch('addOrUpdateShopCart')是调用Vuex仓库中的这个addOrUpdateShopCart函数
+      // 2.你需要知道这次请求成功还是失败，如果成功进行路由跳转，如果失败，需要给用户提示
+      try {
+        // 成功
+        await this.$store.dispatch('addOrUpdateShopCart', {
+          skuId: this.$route.params.skuId,
+          skuNum: this.skuNum,
+        })
+        // 3.进行路由跳转
+        // 4.在路由跳转的时候还需要将产品的信息带给下一级的路由组件
+        // 一些简单的数据skuNum，通过query形式给路由组件传递过去
+        // 产品信息的数据【比较复杂：skuInfo】，通过会话存储(不持久化，会话结束数据在消失)
+        // 本地存储|会话存储，一般存储的是字符串
+        sessionStorage.setItem('SKUINFO', JSON.stringify(this.skuInfo))
+        this.$router.push({
+          name: 'addcartsuccess',
+          query: { skuNum: this.skuNum },
+        })
+      } catch (error) {
+        // 失败
+        console.log(error)
       }
     },
   },

@@ -1,7 +1,11 @@
-const { reqGoodsInfo } = require('@/api')
+const { reqGoodsInfo, reqAddOrUpdateShopCart } = require('@/api')
+// 封装游客临时身份模块uuid-->生成一个随机字符串
+import { getUUID } from '@/utils/uuid_token'
 
 const state = {
   goodInfo: {},
+  // 游客临时身份
+  uuid_token: getUUID(),
 }
 const mutations = {
   GETGOODINFO(state, goodInfo) {
@@ -13,6 +17,19 @@ const actions = {
     let result = await reqGoodsInfo(skuId)
     if (result.code == 200) {
       commit('GETGOODINFO', result.data)
+    }
+  },
+  // 加入购物车的 || 修改某一个产品的个数
+  async addOrUpdateShopCart({ commit }, { skuId, skuNum }) {
+    // 发请求
+    // 不需要在三连环(仓库存储数据了)
+    // 注意：async函数执行返回的结果一定是一个promise【要么成功，要么失败】
+    let result = await reqAddOrUpdateShopCart(skuId, skuNum)
+    if (result.code == 200) {
+      // 返回的是成功的标记
+      return 'ok'
+    } else {
+      return Promise.reject(new Error('faile'))
     }
   },
 }
@@ -30,9 +47,6 @@ const getters = {
   // 产品售卖属性的简化
   spuSaleAttrList(state) {
     return state.goodInfo.spuSaleAttrList || {}
-  },
-  valuesSkuJson(state) {
-    return state.goodInfo.valuesSkuJson || {}
   },
 }
 

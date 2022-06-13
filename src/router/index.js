@@ -78,7 +78,7 @@ router.beforeEach(async (to, from, next) => {
   let token = store.state.user.token
   // 用户信息
   let name = store.state.user.name
-  console.log(name)
+  // console.log(name)
   // 用户已近登录了
   if (token) {
     // 用户已近登录了还想去login【不能去，停留在首页】

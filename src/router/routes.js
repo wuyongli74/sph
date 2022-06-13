@@ -6,12 +6,51 @@ import Search from '@/pages/Search'
 import Detail from '@/pages/Detail'
 import AddCartSuccess from '@/pages/AddCartSuccess'
 import ShopCart from '@/pages/ShopCart'
+import Trade from '@/pages/Trade'
+import Pay from '@/pages/Pay'
+import PaySuccess from '@/pages/PaySuccess'
+import Center from '@/pages/Center'
+
+// 引入二级路由组件
+import myOrder from '@/pages/Center/myOrder'
+import groupOrder from '@/pages/Center/groupOrder'
 
 // 路由配置信息
 export default [
   {
+    path: '/center',
+    component: Center,
+    meta: { show: true },
+    // 二级路由组件
+    children: [
+      { path: 'myorder', component: myOrder },
+      {
+        path: 'grouporder',
+        component: groupOrder,
+      },
+      {
+        path: '/center',
+        redirect: '/center/myorder',
+      },
+    ],
+  },
+  {
+    path: '/paysuccess',
+    component: PaySuccess,
+    meta: { show: true },
+  },
+  {
+    path: '/pay',
+    component: Pay,
+    meta: { show: true },
+  },
+  {
+    path: '/trade',
+    component: Trade,
+    meta: { show: true },
+  },
+  {
     path: '/shopcart',
-    name: 'shopcart',
     component: ShopCart,
     meta: { show: true },
   },

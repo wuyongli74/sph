@@ -32,6 +32,25 @@ import store from '@/store'
 // 统一接口api文件夹里面全部请求函数
 import * as API from '@/api'
 
+// 引入插件图片懒加载
+import VueLazyload from 'vue-lazyload'
+import icons from '@/assets/images/icons.png'
+
+// 注册插件
+Vue.use(VueLazyload, {
+  // 懒加载默认的图片
+  loading: icons,
+})
+
+// 引入自定义插件
+import myPlugins from '@/plugins/myPlugins'
+Vue.use(myPlugins, {
+  name: 'upper',
+})
+
+// 引入表单校验插件
+import '@/plugins/validate'
+
 Vue.config.productionTip = false
 
 new Vue({

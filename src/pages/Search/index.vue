@@ -71,7 +71,7 @@
                 <div class="list-wrap">
                   <div class="p-img">
                     <Router-link :to="`/detail/${good.id}`">
-                      <img :src="good.defaultImg" />
+                      <img v-lazy="good.defaultImg" />
                     </Router-link>
                   </div>
                   <div class="price">
